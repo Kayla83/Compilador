@@ -416,6 +416,7 @@ public class Interface extends javax.swing.JFrame {
             saida.append("Programa compilado com sucesso!\n");
         } catch (SyntaticError e) {
             Token token = e.getToken();
+            String lexema = token.getLexeme();
             String esperado = e.getExpected();
             int linha = token.getPosition();
             
