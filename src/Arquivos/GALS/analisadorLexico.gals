@@ -1,0 +1,23 @@
+#Options
+GenerateScanner = true
+GenerateParser = false
+Language = Java
+ScannerName = Lexico
+ScannerCaseSensitive = true
+ScannerTable = Compact
+Input = String
+#RegularDefinitions
+mai: [A-Z]
+min: [a-z]
+dig: [0-9]
+letra: mai | min
+#Tokens
+identificador: {min}({min}|{dig}|({mai}({min}|{dig}|_{dig})*|(_{dig})*)*)*{mai}?
+constante_int: {dig}+
+constante_float: {dig}+ \. {dig}+
+constante_char: "\" (n|s|t)
+constante_string: \" ( [^ \n \" % "\"]* (%x))* \"
+linha: #[^\n]*
+bloco: \{ \n [^\{ \}]*\n \}
+
+:[\n\t\s]
