@@ -1,21 +1,11 @@
 package AnalisadorLexicoSintatico;
 
-import AnalisadorLexicoSintatico.AnalysisError;
-
 public class LexicalError extends AnalysisError {
     private int line;    // Linha onde ocorreu o erro
     private int column;  // Coluna onde ocorreu o erro
 
-    public LexicalError(String msg, int line, int column) {
-        super(msg);
-        this.line = line;
-        this.column = column;
-    }
-
     public LexicalError(String msg) {
         super(msg);
-        this.line = -1; // Linha desconhecida
-        this.column = -1; // Coluna desconhecida
     }
 
     public int getLine() {

@@ -11,37 +11,11 @@ public class Sintatico implements Constants {
     private Semantico semanticAnalyser;
 
     private String formataMensagemErro(Token token, int esperadoId) {
-        String encontrado = token.getId() == DOLLAR ? "EOF" : token.getLexeme();
-        String esperado;
-
-        switch (esperadoId) {
-            case t_identificador:
-                esperado = "Identificador";
-                break;
-            case t_constante_int:
-                esperado = "constante_int";
-                break;
-            case t_constante_float:
-                esperado = "constante_float";
-                break;
-            case t_constante_char:
-                esperado = "constante_char";
-                break;
-            case t_constante_string:
-                esperado = "constante_string";
-                break;
-            case DOLLAR:
-                esperado = "EOF";
-                break;
-            default:
-                esperado = Token.getLexeme(esperadoId);
-                break;
-        }
-
         int linha = token.getPosition();
-        String lexema = token.getLexeme();
+        String lexema = token.getId() != Constants.t_constante_string ? token.getLexeme() : "constante_string";
+        String message = "encontrado %s %s".formatted(lexema, Constants.PARSER_ERROR[esperadoId]);
 
-        return "Erro na linha " + linha + " - " + lexema + " inválido. Esperado: " + esperado;
+        return "Erro na linha " + linha + " - " + message;
     }
 
     private static final boolean isTerminal(int x) {
@@ -57,43 +31,43 @@ public class Sintatico implements Constants {
     }
 
     private boolean step() throws LexicalError, SyntaticError, SemanticError {
-    if (currentToken == null) {
-        int pos = 0;
-        if (previousToken != null) {
-            pos = previousToken.getPosition() + previousToken.getLexeme().length();
+        if (currentToken == null) {
+            int pos = 0;
+            if (previousToken != null) {
+                pos = previousToken.getPosition() + previousToken.getLexeme().length();
+            }
+
+            currentToken = new Token(DOLLAR, "$", pos);
         }
 
-        currentToken = new Token(DOLLAR, "$", pos);
-    }
+        int x = stack.pop();
+        int a = currentToken.getId();
 
-    int x = ((Integer) stack.pop()).intValue();
-    int a = currentToken.getId();
-
-    if (x == EPSILON) {
-        return false;
-    } else if (isTerminal(x)) {
-        if (x == a) {
-            if (stack.empty()) {
-                return true;
+        if (x == EPSILON) {
+            return false;
+        } else if (isTerminal(x)) {
+            if (x == a) {
+                if (stack.empty()) {
+                    return true;
+                } else {
+                    previousToken = currentToken;
+                    currentToken = scanner.nextToken();
+                    return false;
+                }
             } else {
-                previousToken = currentToken;
-                currentToken = scanner.nextToken();
+                throw new SyntaticError(formataMensagemErro(currentToken, x));
+            }
+        } else if (isNonTerminal(x)) {
+            if (pushProduction(x, a)) {
                 return false;
+            } else {
+                throw new SyntaticError(formataMensagemErro(currentToken, x));
             }
         } else {
-            throw new SyntaticError(formataMensagemErro(currentToken, x), currentToken.getPosition(), currentToken, formataMensagemErro(currentToken, x));
-        }
-    } else if (isNonTerminal(x)) {
-        if (pushProduction(x, a)) {
-            return false;
-        } else {
-            throw new SyntaticError(formataMensagemErro(currentToken, x), currentToken.getPosition(), currentToken, formataMensagemErro(currentToken, x));
-        }
-    } else {
         semanticAnalyser.executeAction(x - FIRST_SEMANTIC_ACTION, previousToken);
         return false;
     }
-}
+    }
 
     private boolean pushProduction(int topStack, int tokenInput) {
         int p = PARSER_TABLE[topStack - FIRST_NON_TERMINAL][tokenInput - 1];

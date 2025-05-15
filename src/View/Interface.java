@@ -415,15 +415,9 @@ public class Interface extends javax.swing.JFrame {
             sintatico.parse(lexico, semantico);
             saida.append("Programa compilado com sucesso!\n");
         } catch (SyntaticError e) {
-            Token token = e.getToken();
-            String lexema = token.getLexeme();
-            String esperado = e.getExpected();
-            int linha = token.getPosition();
-            
-            saida.append("Erro na linha ").append(linha).append(" - ").append(lexema).append(" inválida. Esperado: ").append(esperado).append("\n");
-        
+            saida.append(e.getMessage());
         } catch (LexicalError e) {
-            saida.append("Erro Léxico na linha ").append(e.getLine()).append(": ").append(e.getMessage()).append("\n");
+            saida.append(e.getMessage());
         } catch (SemanticError e) {
             saida.append("Erro Semântico: ").append(e.getMessage()).append("\n");
         } catch (Exception e) {
