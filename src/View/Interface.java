@@ -29,7 +29,6 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import AnalisadorLexicoSintatico.Token;
 
 /**
  *
